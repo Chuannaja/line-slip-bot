@@ -910,15 +910,25 @@ app.post("/admin/delete/:id", requireLogin, async (req, res) => {
     if (!oldQ.rows.length) return res.status(404).send("ไม่พบข้อมูลที่จะลบ");
     const oldData = oldQ.rows[0];
 
-    await pool.query("DELETE FROM payments WHERE id=$1", [id]);
+    // ⬇️ บันทึก log ก่อนลบ
+    await logPaymentAction({ 
+      paymentId: Number(id), 
+      action: "delete", 
+      oldData, 
+      newData: null, 
+      actorId, 
+      actorName 
+    });
 
-    await logPaymentAction({ paymentId: Number(id), action: "delete", oldData, newData: null, actorId, actorName });
+    // ⬇️ ค่อยลบ record
+    await pool.query("DELETE FROM payments WHERE id=$1", [id]);
 
     res.redirect("/admin/dashboard?deleted_id=" + id);
   } catch (err) {
     res.status(500).send("❌ Error: " + err.message);
   }
 });
+
 
 
 
