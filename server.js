@@ -323,11 +323,7 @@ app.post("/admin/users/add", requireLogin, async (req, res) => {
   try {
     // 🔧 เปลี่ยน: รับ role มาด้วย (ค่า: Full Control / Admin / User)
     const { username, display_name, password, role } = req.body;
-    const hash = await bcrypt.hash(password, 10);
-    await pool.query(
-      "INSERT INTO users (username, display_name, password) VALUES ($1, $2, $3)",
-      [username, display_name, hash]
-    );
+    const hash = await bcrypt.hash(password, 10);    
     // 🔧 เปลี่ยน: บันทึก role ลง DB
     await pool.query(
       "INSERT INTO users (username, display_name, password, role) VALUES ($1, $2, $3, $4)",
