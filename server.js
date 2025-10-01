@@ -11,7 +11,9 @@ const expressLayouts = require("express-ejs-layouts");
 
 // ถ้ามีใบเสร็จ JPEG
 const ejs = require("ejs");
-const puppeteer = require("puppeteer");
+const puppeteer = require("puppeteer-core");
+const chromium = require("@sparticuz/chromium");
+
 
 // ← เพิ่มแค่นี้พอ (อย่าใช้ก่อนสร้าง app)
 const session = require("express-session");
@@ -719,9 +721,11 @@ app.post("/admin/update/:id", requireLogin, async (req, res) => {
       );
 
       const browser = await puppeteer.launch({
-        headless: "new",
-        args: ["--no-sandbox", "--disable-setuid-sandbox"]
-      });
+		  args: chromium.args,
+		  defaultViewport: chromium.defaultViewport,
+		  executablePath: await chromium.executablePath(),
+		  headless: chromium.headless,
+		});
 
       const page = await browser.newPage();
       await page.setContent(receiptHtml, { waitUntil: "networkidle0" });
