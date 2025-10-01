@@ -269,7 +269,7 @@ app.post("/login", async (req, res) => {
     if (!ok) return res.render("login", { title: "เข้าสู่ระบบ", error: "❌ รหัสผ่านไม่ถูกต้อง" });
 
     req.session.user = {
-						  id: user.id,
+						  id: Number(user.id),   // ✅ แปลงเป็น integer
 						  username: user.username,
 						  display_name: user.display_name || user.username,
 						  role: user.role || "User"  // 🟢 เพิ่ม
@@ -687,7 +687,7 @@ app.post("/admin/update/:id", requireLogin, async (req, res) => {
     status === "rejected" ? "ไม่อนุมัติ" : "รอดำเนินการ";
 
   // ผู้ปฏิบัติ
-  const actorId = req.session?.user?.id || null;
+  const actorId = req.session?.user?.id ? Number(req.session.user.id) : null;
   const actorName = req.session?.user?.display_name || req.session?.user?.username || "ไม่ทราบผู้ใช้";
 
   try {
@@ -834,7 +834,7 @@ app.get("/admin/receipt/:id", requireLogin, async (req, res) => {
 // 🟢 แก้ไขข้อมูลการชำระเงิน (ADMIN)
 app.post("/admin/edit/:id", requireLogin, async (req, res) => {
   const id = parseInt(req.params.id, 10);
-  const actorId = req.session?.user?.id || null;
+  const actorId = req.session?.user?.id ? Number(req.session.user.id) : null;
   const actorName = req.session?.user?.display_name || req.session?.user?.username || "ไม่ทราบผู้ใช้";
 
   try {
@@ -902,7 +902,7 @@ app.post("/admin/edit/:id", requireLogin, async (req, res) => {
 // 🟢 Route ลบ
 app.post("/admin/delete/:id", requireLogin, async (req, res) => {
   const id = parseInt(req.params.id, 10);
-  const actorId = req.session?.user?.id || null;
+  const actorId = req.session?.user?.id ? Number(req.session.user.id) : null;
   const actorName = req.session?.user?.display_name || req.session?.user?.username || "ไม่ทราบผู้ใช้";
 
   try {
