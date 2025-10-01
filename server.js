@@ -941,6 +941,16 @@ app.get("/admin/summary", requireLogin, async (req, res) => {
     res.status(500).send("❌ Error: " + err.message);
   }
 });
+// 🟢 Route หน้าแรก (เพิ่มใหม่)
+// ใส่ก่อน START SERVER
+app.get("/", (req, res) => {
+  // ถ้ายังไม่ได้ login → redirect ไป /login
+  if (!req.session || !req.session.user) {
+    return res.redirect("/login");
+  }
+  // ถ้า login แล้ว → redirect ไป Dashboard
+  return res.redirect("/admin/dashboard");
+});
 
 // ==== START SERVER ====
 const PORT = process.env.PORT || 3000;
