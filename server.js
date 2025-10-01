@@ -545,7 +545,7 @@ app.post("/admin/reset-db", requireLogin, async (req, res) => {
 app.get("/form/:id", async (req, res) => {
   try {
     const result = await pool.query("SELECT * FROM payments WHERE id=$1", [
-      req.params.id,
+      parseInt(req.params.id, 10),
     ]);
     const payment = result.rows[0];
     res.render("form", { payment });
@@ -833,7 +833,7 @@ app.get("/admin/receipt/:id", requireLogin, async (req, res) => {
 // รับฟิลด์ที่แก้ไขผ่าน form: first_name, last_name, address, phone, payment_type, amount (ถ้ามี)
 // 🟢 แก้ไขข้อมูลการชำระเงิน (ADMIN)
 app.post("/admin/edit/:id", requireLogin, async (req, res) => {
-  const id = req.params.id;
+  const id = parseInt(req.params.id, 10);
   const actorId = req.session?.user?.id || null;
   const actorName = req.session?.user?.display_name || req.session?.user?.username || "ไม่ทราบผู้ใช้";
 
