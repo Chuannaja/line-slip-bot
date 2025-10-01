@@ -289,7 +289,7 @@ app.get("/logout", (req, res) => {
 // 🟢 GET: หน้าแก้ไขข้อมูล
 app.get("/admin/edit/:id", requireLogin, async (req, res) => {
   try {
-    const id = req.params.id;
+    const id = parseInt(req.params.id, 10);
     const result = await pool.query("SELECT * FROM payments WHERE id=$1", [id]);
     if (!result.rows.length) {
       return res.status(404).send("ไม่พบข้อมูลที่จะทำการแก้ไข");
@@ -343,7 +343,7 @@ app.post("/admin/users/add", requireLogin, async (req, res) => {
 app.post("/admin/delete-user/:id", requireLogin, async (req, res) => {
   try {
     const currentUser = req.session.user;
-    const targetId = req.params.id;
+    const targetId = parseInt(req.params.id, 10);;
 
     // จำกัดเฉพาะ Full Control
     if (!currentUser || currentUser.role !== "Full Control") {
@@ -556,7 +556,7 @@ app.get("/form/:id", async (req, res) => {
 
 app.post("/form/:id", upload.none(), async (req, res) => {
   const { first_name, last_name, phone, payment_type, house_no, village_no, province, district, subdistrict } = req.body;
-  const id = req.params.id;
+  const id = parseInt(req.params.id, 10);
 
   // 🟢 รวมที่อยู่ให้ครบ
   const address = `${house_no ? house_no : ''} ${village_no ? 'หมู่ ' + village_no : ''} ต.${subdistrict} อ.${district} จ.${province}`;
@@ -680,7 +680,7 @@ app.get("/admin/dashboard", requireLogin, async (req, res) => {
 
 app.post("/admin/update/:id", requireLogin, async (req, res) => {
   const { status, reject_reason } = req.body;
-  const id = req.params.id;
+  const id = parseInt(req.params.id, 10);
 
   const statusText =
     status === "approved" ? "อนุมัติ" :
@@ -812,7 +812,7 @@ message =
 // 🟢 GET: ใบเสร็จรับเงิน
 app.get("/admin/receipt/:id", requireLogin, async (req, res) => {
   try {
-    const id = req.params.id;
+    const id = parseInt(req.params.id, 10);
     const result = await pool.query("SELECT * FROM payments WHERE id=$1", [id]);
     if (!result.rows.length) return res.status(404).send("ไม่พบข้อมูลใบเสร็จ");
     const payment = result.rows[0];
@@ -901,7 +901,7 @@ app.post("/admin/edit/:id", requireLogin, async (req, res) => {
 
 // 🟢 Route ลบ
 app.post("/admin/delete/:id", requireLogin, async (req, res) => {
-  const id = req.params.id;
+  const id = parseInt(req.params.id, 10);
   const actorId = req.session?.user?.id || null;
   const actorName = req.session?.user?.display_name || req.session?.user?.username || "ไม่ทราบผู้ใช้";
 
