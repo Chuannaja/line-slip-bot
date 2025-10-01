@@ -1,0 +1,77 @@
+<div class="card shadow-sm mb-4">
+  <div class="card-header bg-primary text-white">
+    🔍 ค้นหาประวัติการทำรายการ
+  </div>
+  <div class="card-body">
+    <form method="GET" action="/admin/logs" class="row g-3">
+      <div class="col-md-4">
+        <label for="payment_id" class="form-label">เลขที่ชำระ</label>
+        <input type="number" class="form-control" id="payment_id" name="payment_id" 
+               value="<%= payment_id %>" placeholder="กรอกเลขที่ชำระ">
+      </div>
+      <div class="col-md-2 d-flex align-items-end">
+        <button type="submit" class="btn btn-primary w-100">ค้นหา</button>
+      </div>
+      <div class="col-md-2 d-flex align-items-end">
+        <a href="/admin/logs" class="btn btn-secondary w-100">รีเซ็ต</a>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- ตาราง Log -->
+<div class="card shadow-sm">
+  <div class="card-header bg-info text-white">
+    📜 ประวัติการทำรายการ (Logs)
+  </div>
+  <div class="card-body">
+    <div class="table-responsive">
+      <table class="table table-bordered table-hover">
+        <thead class="table-light">
+          <tr>
+            <th>#</th>
+            <th>วันที่</th>
+            <th>Action</th>
+            <th>เลขที่ชำระ</th>
+            <th>ชื่อผู้จ่าย</th>
+            <th>ผู้ทำรายการ</th>
+            <th>ข้อมูลเดิม</th>
+            <th>ข้อมูลใหม่</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% logs.forEach((log, i) => { %>
+            <tr>
+              <td><%= i+1 %></td>
+              <td><%= new Date(log.created_at).toLocaleString("th-TH") %></td>
+              <td>
+                <% if (log.action === "edit") { %>
+                  ✏️ แก้ไข
+                <% } else if (log.action === "delete") { %>
+                  🗑️ ลบ
+                <% } %>
+              </td>
+              <td><%= log.payment_id %></td>
+              <td><%= log.first_name %> <%= log.last_name %></td>
+              <td><%= log.actor_name || '-' %></td>
+              <td>
+                <% if (log.old_data) { %>
+                  <%- Object.entries(log.old_data).map(([k,v]) => `${k} : ${v}`).join("<br>") %>
+                <% } else { %>
+                  -
+                <% } %>
+              </td>
+              <td>
+                <% if (log.new_data) { %>
+                  <%- Object.entries(log.new_data).map(([k,v]) => `${k} : ${v}`).join("<br>") %>
+                <% } else { %>
+                  -
+                <% } %>
+              </td>
+            </tr>
+          <% }) %>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>

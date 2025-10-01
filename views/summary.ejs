@@ -1,0 +1,32 @@
+<div class="card">
+  <div class="card-header bg-success text-white">
+    <h3 class="card-title">📊 สรุปยอดการชำระเงิน</h3>
+  </div>
+  <div class="card-body">
+    <canvas id="paymentChart" style="max-height:400px;"></canvas>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+  const ctx = document.getElementById('paymentChart').getContext('2d');
+  const chart = new Chart(ctx, {
+    type: 'bar',
+    data: {
+      labels: <%- JSON.stringify(labels) %>,
+      datasets: [{
+        label: 'ยอดเงินรวม (บาท)',
+        data: <%- JSON.stringify(data) %>,
+        backgroundColor: 'rgba(54, 162, 235, 0.6)',
+        borderColor: 'rgba(54, 162, 235, 1)',
+        borderWidth: 1
+      }]
+    },
+    options: { 
+      responsive: true, 
+      scales: { 
+        y: { beginAtZero: true } 
+      } 
+    }
+  });
+</script>

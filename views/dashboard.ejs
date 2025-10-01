@@ -1,0 +1,314 @@
+<!-- ===== styles for dashboard ===== -->
+<style>
+  .card-filter .card-header{background:#f8fafc}
+  .filter-chip{
+    display:inline-flex;align-items:center;background:#f1f5f9;border-radius:999px;
+    padding:4px 10px;margin:0 6px 6px 0;font-size:.875rem
+  }
+  .filter-chip .x{margin-left:6px;text-decoration:none;cursor:pointer}
+  .table-responsive{max-height:65vh}
+  .sticky-head thead th{position:sticky;top:0;background:#fff;z-index:2}
+  .thumb{max-width:120px}
+  .amount-cell{white-space:nowrap}
+</style>
+
+<!-- ===== FILTERS ===== -->
+<div class="card card-filter shadow-sm mb-3">
+  <div class="card-header d-flex justify-content-between align-items-center">
+    <div><i class="fas fa-filter me-2"></i><strong>ค้นหา / กรอง</strong></div>
+    <button class="btn btn-sm btn-outline-secondary" type="button" data-bs-toggle="collapse" data-bs-target="#advFilters">
+      ตัวกรองเพิ่มเติม
+    </button>
+  </div>
+
+  <div class="card-body">
+    <!-- 🟢 ปรับ layout -->
+    <form method="GET" action="/admin/dashboard" class="row g-3 align-items-end">
+      <!-- รายการชำระ -->
+      <div class="col-md-3">
+        <label class="form-label">รายการชำระ</label>
+        <select name="payment_type" class="form-select">
+          <option value="">-- ทั้งหมด --</option>
+          <option value="ฌาปนกิจหมู่บ้าน" <%= query.payment_type==='ฌาปนกิจหมู่บ้าน'?'selected':'' %>>ฌาปนกิจหมู่บ้าน</option>
+          <option value="ค่าน้ำประปาหมู่บ้าน" <%= query.payment_type==='ค่าน้ำประปาหมู่บ้าน'?'selected':'' %>>ค่าน้ำประปาหมู่บ้าน</option>
+          <option value="กองทุนเงินล้าน" <%= query.payment_type==='กองทุนเงินล้าน'?'selected':'' %>>กองทุนเงินล้าน</option>
+        </select>
+      </div>
+
+      <!-- ช่วงวันที่ -->
+      <div class="col-md-4">
+        <label class="form-label">ช่วงวันที่</label>
+        <div class="input-group">
+          <input type="date" name="from" value="<%= query.from || '' %>" class="form-control">
+          <span class="input-group-text">ถึง</span>
+          <input type="date" name="to" value="<%= query.to || '' %>" class="form-control">
+        </div>
+      </div>
+
+      <!-- เลขที่อ้างอิง -->
+      <div class="col-md-2">
+        <label class="form-label">เลขที่อ้างอิง</label>
+        <input type="text" name="id" value="<%= query.id || '' %>" class="form-control">
+      </div>
+
+      <!-- สถานะ -->
+      <div class="col-md-2">
+        <label class="form-label">สถานะ</label>
+        <select name="status" class="form-select">
+          <option value="">-- ทั้งหมด --</option>
+          <option value="approved" <%= query.status==='approved'?'selected':'' %>>อนุมัติ</option>
+          <option value="rejected" <%= query.status==='rejected'?'selected':'' %>>ไม่อนุมัติ</option>
+          <option value="pending"  <%= query.status==='pending' ?'selected':'' %>>รอดำเนินการ</option>
+        </select>
+      </div>
+	  <div class="col-md-3 d-flex align-items-end">
+		<button type="submit" class="btn btn-primary">ค้นหา</button>
+		<a href="/admin/export-excel?<%= new URLSearchParams(query).toString() %>" class="btn btn-success ms-2">
+		  📤 Export Excel
+		</a>
+	  </div>
+
+      <!-- ปุ่ม -->
+      <div class="col-md-12 d-flex justify-content-end gap-2 mt-2">
+        <a href="/admin/dashboard" class="btn btn-outline-secondary">
+          <i class="fas fa-undo"></i> รีเซ็ต
+        </a>
+        <button type="submit" class="btn btn-primary">
+          <i class="fas fa-search"></i> ค้นหา
+        </button>
+      </div>
+    </form>
+
+    <!-- chips -->
+    <div id="activeFilters" class="mt-3"></div>
+  </div>
+</div>
+
+<!-- ===== RESULTS ===== -->
+<div class="card shadow-sm">
+  <div class="card-header d-flex justify-content-between align-items-center">
+    <div>
+      <i class="fas fa-list-ul me-2"></i><strong>รายการชำระเงิน</strong>
+      <span class="badge bg-secondary ms-2"><%= payments.length %> รายการ</span>
+    </div>
+    <div>
+      <a href="/admin/summary" class="btn btn-sm btn-outline-primary"><i class="fas fa-chart-line me-1"></i> สรุปรายงาน</a>
+    </div>
+  </div>
+
+  <% if (!payments.length) { %>
+    <div class="p-4 text-center text-muted">ไม่พบข้อมูลตามเงื่อนไขที่เลือก</div>
+  <% } else { %>
+    <div class="table-responsive">
+      <table class="table table-hover align-middle sticky-head">
+        <thead class="table-light">
+          <tr>
+            <th>เลขที่อ้างอิง</th>
+            <th>ชื่อ</th>
+            <th>นามสกุล</th>
+            <th>ที่อยู่</th>
+            <th>เบอร์โทรศัพท์</th>
+            <th>ยอดเงิน</th>
+            <th>สลิป</th>
+            <th>สถานะ</th>
+            <th>ผู้ดำเนินการ</th>
+            <th>รายการชำระ</th>
+            <th>เหตุผล</th>
+            <th>การจัดการ</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% payments.forEach(p => { %>
+            <tr>
+              <td><%= p.id %></td>
+              <td><%= p.first_name || '' %></td>
+              <td><%= p.last_name  || '' %></td>
+              <td><%= p.address    || '' %></td>
+              <td><%= p.phone      || '' %></td>
+
+              <td class="amount-cell">
+                <% if (p.amount && !isNaN(p.amount)) { %>
+                  <%= parseFloat(p.amount).toFixed(2) %> บาท
+                <% } else { %>ไม่พบ<% } %>
+              </td>
+
+              <td>
+                <% if (p.slip_url) { %>
+                  <a href="<%= p.slip_url %>" target="_blank" rel="noopener">
+                    <img src="<%= p.slip_url %>" class="img-thumbnail thumb" alt="slip">
+                  </a>
+                <% } else { %>-<% } %>
+              </td>
+
+              <td>
+                <span class="badge <%= p.status==='approved'?'bg-success':p.status==='rejected'?'bg-danger':'bg-secondary' %>">
+                  <%= p.status==='approved'?'อนุมัติ':p.status==='rejected'?'ไม่อนุมัติ':'รอดำเนินการ' %>
+                </span>
+              </td>
+
+              <td><%= (p.operator_name || p.status_changed_by || '-') %></td>
+
+              <td>
+                <span class="badge bg-info text-dark"><%= p.payment_type || '-' %></span>
+              </td>
+
+              <td>
+                <% if (p.reject_reason) { %>
+                  <button type="button"
+                          class="btn btn-warning btn-sm btn-reason"
+                          data-reason="<%- encodeURIComponent(p.reject_reason || '') %>">
+                    <i class="fas fa-exclamation-circle"></i> ดูเหตุผล
+                  </button>
+                <% } else { %>-<% } %>
+              </td>
+
+              <td>
+				  <form method="POST" action="/admin/update/<%= p.id %>" style="display:inline;">
+					<input type="hidden" name="hidden_status" value="">
+					<input type="hidden" name="reject_reason" id="reject_reason_<%= p.id %>">
+
+					<div class="btn-group btn-group-sm" role="group">
+					  <!-- อนุมัติ -->
+					  <button type="submit" name="status" value="approved" class="btn btn-success">
+						อนุมัติ
+					  </button>
+					  <!-- ไม่อนุมัติ -->
+					  <button type="button"
+							  class="btn btn-danger btn-sm btn-open-reject"
+							  data-id="<%= p.id %>">
+						ไม่อนุมัติ
+					  </button>
+					</div>
+				  </form>
+
+				  <!-- 🟢 ปุ่มแก้ไข -->
+				  <a href="/admin/edit/<%= p.id %>" class="btn btn-warning">
+					<i class="fas fa-edit"></i>
+				  </a>
+
+				  <!-- 🟢 ปุ่มลบ -->
+				  <form method="POST" action="/admin/delete/<%= p.id %>" onsubmit="return confirm('ยืนยันการลบ?');" style="display:inline;">
+					<button type="submit" class="btn btn-outline-danger">
+					  <i class="fas fa-trash"></i>
+					</button>
+				  </form>
+				</td>
+
+            </tr>
+          <% }) %>
+        </tbody>
+      </table>
+    </div>
+  <% } %>
+</div>
+
+<!-- ===== Reason View Modal (ดูเหตุผล) ===== -->
+<div class="modal fade" id="reasonModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title"><i class="fas fa-exclamation-triangle text-warning me-2"></i>เหตุผลการไม่อนุมัติ</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <pre id="reasonText" class="mb-0" style="white-space:pre-wrap"></pre>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ===== Reject Input Modal (กรอกเหตุผลก่อนส่ง) ===== -->
+<div class="modal fade" id="rejectInputModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog">
+    <form class="modal-content" id="rejectFormProxy" onsubmit="return false;">
+      <div class="modal-header">
+        <h5 class="modal-title">
+          <i class="fas fa-ban text-danger me-2"></i>ระบุเหตุผลการไม่อนุมัติ
+        </h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="ปิด"></button>
+      </div>
+      <div class="modal-body">
+        <textarea id="rejectInputText" class="form-control" rows="4" placeholder="กรอกเหตุผล..." required></textarea>
+        <div class="form-text">จำเป็นต้องกรอกเหตุผลก่อนยืนยันไม่อนุมัติ</div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">ยกเลิก</button>
+        <button type="button" class="btn btn-danger" id="confirmRejectBtn">
+          <i class="fas fa-check"></i> ยืนยันไม่อนุมัติ
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- ===== scripts ===== -->
+<script>
+(() => {
+  // chips for active filters
+  const q = <%- JSON.stringify(query || {}) %>;
+  const labels = {
+    payment_type:'รายการชำระ', from:'ตั้งแต่', to:'ถึง', id:'เลขที่',
+    first_name:'ชื่อ', address:'ที่อยู่', phone:'เบอร์', status:'สถานะ'
+  };
+  const el = document.getElementById('activeFilters');
+  const parts = [];
+  for (const k in labels) {
+    const v = (q[k] || '').toString().trim();
+    if (!v) continue;
+    parts.push(`<span class="filter-chip">${labels[k]}: ${escapeHtml(v)}<a class="x" href="${rmParam(k)}" title="ลบตัวกรอง">&times;</a></span>`);
+  }
+  el.innerHTML = parts.join(' ');
+
+  function rmParam(key){
+    const u = new URL(window.location.href);
+    u.searchParams.delete(key);
+    return u.toString();
+  }
+
+  function escapeHtml(str){
+    return str.replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
+  }
+
+  // ===== Modal Controls =====
+  let currentId = null;
+
+  // เปิด popup "ดูเหตุผล"
+  document.querySelectorAll(".btn-reason").forEach(btn => {
+    btn.addEventListener("click", e => {
+      const reason = decodeURIComponent(btn.dataset.reason || "");
+      document.getElementById("reasonText").innerText = reason;
+      const modal = new bootstrap.Modal(document.getElementById("reasonModal"));
+      modal.show();
+    });
+  });
+
+  // เปิด popup "ไม่อนุมัติ"
+  document.querySelectorAll(".btn-open-reject").forEach(btn => {
+    btn.addEventListener("click", e => {
+      currentId = btn.dataset.id;
+      document.getElementById("rejectInputText").value = "";
+      const modal = new bootstrap.Modal(document.getElementById("rejectInputModal"));
+      modal.show();
+    });
+  });
+
+  // กดยืนยันไม่อนุมัติ
+  document.getElementById("confirmRejectBtn").addEventListener("click", e => {
+    const reason = document.getElementById("rejectInputText").value.trim();
+    if (!reason) { alert("กรุณากรอกเหตุผล"); return; }
+    if (currentId) {
+      // 🟢 ใส่เหตุผลลง hidden input
+      document.getElementById("reject_reason_" + currentId).value = reason;
+      // 🟢 ใส่สถานะ rejected ลง hidden input
+      let hidden = document.querySelector(`form[action='/admin/update/${currentId}'] input[name='hidden_status']`);
+		if (hidden) {
+		  hidden.name = "status";   // 🟢 เปลี่ยนชื่อ field ตอนส่งฟอร์ม
+		  hidden.value = "rejected";
+		}
+
+      // 🟢 submit form
+      document.querySelector(`form[action='/admin/update/${currentId}']`).submit();
+    }
+  });
+})();
+</script>

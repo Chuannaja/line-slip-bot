@@ -1,0 +1,73 @@
+<div class="card shadow-sm">
+  <div class="card-header bg-danger text-white">
+    ⚠️ การจัดการข้อมูล
+  </div>
+  <div class="card-body">
+    <p class="text-danger">
+      การลบข้อมูลทั้งหมดไม่สามารถกู้คืนได้ (ยกเว้น Table: users)
+    </p>
+    <form method="POST" action="/admin/clear-data" onsubmit="return confirmDeleteAll(event)">
+      <div class="mb-3">
+        <label class="form-label">กรอกรหัสเพื่อลบข้อมูล</label>
+        <input type="text" class="form-control" id="confirm_key_all" name="confirm_key" required>
+      </div>
+      <button type="submit" class="btn btn-danger">🗑️ ลบข้อมูลทั้งหมด</button>
+    </form>
+  </div>
+</div>
+
+<div class="card shadow-sm mt-4">
+  <div class="card-header bg-warning text-dark">
+    🗑️ จัดการ Logs
+  </div>
+  <div class="card-body">
+    <p class="text-danger">
+      การลบ Logs ทั้งหมด (payment_logs) ไม่สามารถกู้คืนได้
+    </p>
+    <form method="POST" action="/admin/clear-logs" onsubmit="return confirmClearLogs(event)">
+      <div class="mb-3">
+        <label class="form-label">กรอกรหัสเพื่อลบข้อมูล</label>
+        <input type="text" class="form-control" id="confirm_key_logs" name="confirm_key" required>
+      </div>
+      <button type="submit" class="btn btn-warning">🗑️ ลบ Logs ทั้งหมด</button>
+    </form>
+  </div>
+</div>
+
+<script>
+function confirmDeleteAll(e) {
+  const key = document.getElementById("confirm_key_all").value.trim();
+
+  if (key !== "LL68") {
+    alert("❌ Key ไม่ถูกต้อง");
+    e.preventDefault();
+    return false;
+  }
+
+  const confirmed = confirm("⚠️ คุณแน่ใจหรือไม่ว่าต้องการลบข้อมูลทั้งหมด? การกระทำนี้ไม่สามารถยกเลิกได้!");
+  if (!confirmed) {
+    e.preventDefault();
+    return false;
+  }
+
+  return true;
+}
+
+function confirmClearLogs(e) {
+  const key = document.getElementById("confirm_key_logs").value.trim();
+
+  if (key !== "LL68") {
+    alert("❌ Key ไม่ถูกต้อง");
+    e.preventDefault();
+    return false;
+  }
+
+  const confirmed = confirm("⚠️ คุณแน่ใจหรือไม่ว่าต้องการลบ Logs ทั้งหมด?");
+  if (!confirmed) {
+    e.preventDefault();
+    return false;
+  }
+
+  return true;
+}
+</script>

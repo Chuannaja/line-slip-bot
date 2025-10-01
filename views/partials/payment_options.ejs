@@ -1,0 +1,13 @@
+<option value="">-- เลือกรายการ --</option>
+<option value="ฌาปนกิจหมู่บ้าน"
+  <%= payment && payment.payment_type==='ฌาปนกิจหมู่บ้าน' ? 'selected' : '' %>>
+  ฌาปนกิจหมู่บ้าน
+</option>
+<option value="ค่าน้ำประปาหมู่บ้าน"
+  <%= payment && payment.payment_type==='ค่าน้ำประปาหมู่บ้าน' ? 'selected' : '' %>>
+  ค่าน้ำประปาหมู่บ้าน
+</option>
+<option value="กองทุนเงินล้าน"
+  <%= payment && payment.payment_type==='กองทุนเงินล้าน' ? 'selected' : '' %>>
+  กองทุนเงินล้าน
+</option>
